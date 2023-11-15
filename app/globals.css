@@ -2,26 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body {
+  height: 100%;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-primary: #ecf0f3;
+  --background-secondary: #e0e0e0;
+  --background-title: #fff;
+  --description-color: hsla(0, 0%, 18%, 0.769);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background-primary: #0f172a;
+    --background-secondary: #1e293b;
+    /* --background-title: #334155; */
+    --background-title : #15314b;;
+    --description-color: hsla(0,0%,100%,.769);
   }
 }
 
+
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    background-color: var(--background-primary);
+}
+
+
+.dragger:hover {
+  background-color: rgb(130, 149, 255) !important;
+  user-select: none;
+}
+
+.CodeMirror, .CodeMirror-gutter, .CodeMirror-linenumbers {
+  background-color: var(--background-primary) !important;
+  height: 100% !important;
+  line-height: 1.8rem !important;
+}
+
+.CodeMirror pre {
+  color: var(--foreground-rgb) !important; 
+}
+
+.codemirror-testcases > .CodeMirror {
+  background-color: var(--background-title) !important;
+}
+
+.codemirror-testcases .CodeMirror-gutter {
+  background-color: #15314b !important;
+  padding-right: 10px;
+}
+
+.CodeMirror {
+  border-radius: 8px !important;
+}
+
+.tab:hover {
+  background-color: var(--background-primary) !important;
+  cursor: pointer;
 }

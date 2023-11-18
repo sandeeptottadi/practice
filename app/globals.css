@@ -37,28 +37,10 @@ body {
   user-select: none;
 }
 
-.CodeMirror, .CodeMirror-gutter, .CodeMirror-linenumbers {
-  background-color: var(--background-primary) !important;
-  height: 100% !important;
-  line-height: 1.8rem !important;
+.cm-gutter {
+  background-color: var(--background-secondary) !important;
 }
 
-.CodeMirror pre {
-  color: var(--foreground-rgb) !important; 
-}
-
-.codemirror-testcases > .CodeMirror {
-  background-color: var(--background-title) !important;
-}
-
-.codemirror-testcases .CodeMirror-gutter {
-  background-color: #15314b !important;
-  padding-right: 10px;
-}
-
-.CodeMirror {
-  border-radius: 8px !important;
-}
 
 .tab:hover {
   background-color: var(--background-primary) !important;

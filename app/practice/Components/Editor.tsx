@@ -1,16 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/mode/javascript/javascript.js';
-import { Controlled as CodeMirror } from 'react-codemirror2';
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 export default function Editor(props : any) {
-
-  const editorRef = useRef<any>(null);
-
-  const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  const theme = userPrefersDark ? 'material' : 'default';
 
   const [funcName, setFuncName] = useState("isValidSubSequence");
 
@@ -18,6 +10,7 @@ export default function Editor(props : any) {
 
   const [language, setLanguage] = useState("javascript");
 
+  const [code, setCode] = useState<string>("");
 
   useEffect(() => {
       function makeBoilerTemplete() {
@@ -40,16 +33,9 @@ export default function Editor(props : any) {
   }, []);
 
 
-  const [code, setCode] = useState<string>("");
-
-  const handleChange = (editor: any, data: any, value: string) => {
-    setCode(value);
-    props.saveCode(value);
-  };
-
   useEffect(() => {
     props.saveCode(code);
-  }, [])
+  }, [code, props])
 
   return (
     <div style={{ backgroundColor: 'var(--background-primary)' }} className='w-full h-full overflow-hidden'>
@@ -61,19 +47,13 @@ export default function Editor(props : any) {
         <div className=' overflow-auto w-full h-full'>
           <div style={{color: "var(--description-color)", fontFamily: "Open Sans,Helvetica,Arial,sans-serif"}} className='leading-9 text-xs h-full'>
             <CodeMirror
-              onBeforeChange={(editor, data, value) => handleChange(editor, data, value)}
+              theme={props.preferedTheme}    
               value={code}
-              className='pt-3'
-              options={{
-                mode: 'javascript',
-                theme: theme,
-                lineNumbers: true,
-                extraKeys: {
-                  'Ctrl-Space': 'autocomplete', 
-                },
+              extensions={[javascript({ jsx: true })]}
+              onChange={(value : any, viewUpdate: any) => {
+                setCode(value);
+                props.saveCode(value);
               }}
-              autoCursor={true}
-              ref={editorRef}
             />
             <div className='p-5' />
           </div>

@@ -7,8 +7,38 @@ import Statement from './Components/Statement'
 import TestCases from './Components/TestCases'
 import Output from './Components/Output'
 import AWS from '../aws'
+import { basicLight, basicLightInit, basicDark, basicDarkInit } from '@uiw/codemirror-theme-basic';
 
 export default function Practice() {
+
+    const [preferedTheme, setPreferedTheme] = useState(basicLightInit({
+        settings: {
+          caret: "#000",
+          background: "#ecf0f3",
+          fontFamily: 'monospace',
+        }
+      }))
+    
+      useEffect(() => {
+        const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+        let preferedTheme = userPrefersDark ? basicDarkInit({
+          settings: {
+            caret: "#fff",
+            background: "#0f172a",
+            fontFamily: 'monospace',
+          }
+        }) : basicLightInit({
+          settings: {
+            caret: "#000",
+            background: "#ecf0f3",
+            fontFamily: 'monospace',
+          }
+        });
+        setPreferedTheme(preferedTheme);
+      }, [])
+
+
     const [isMouse1Down, setIsMouse1Down] = useState(false);
     const [isMouse2Down, setIsMouse2Down] = useState(false);
     const [isMouse3Down, setIsMouse3Down] = useState(false);
@@ -113,6 +143,7 @@ export default function Practice() {
             if (e.clientX > containerWidth) {
                 setIsMouse2Down(false);
             }
+            return;
         }
     }
 
@@ -120,23 +151,33 @@ export default function Practice() {
         setCode(code);
     }
 
-    function run() {
-        const lambda = new AWS.Lambda();
+    async function run() {
+        
+        for(let i=0;i<testCases.length;i++) {
+            const lambda = new AWS.Lambda();
 
-        const params = {
-            FunctionName: 'Test',
-            Payload: JSON.stringify({ code: code, funcName : 'isValidSubSequence', testCases: testCases[0] }),
-        };
+            const params = {
+                FunctionName: 'Test',
+                Payload: JSON.stringify({ code: code, funcName : 'isValidSubSequence', testCases: testCases[i] }),
+            };
 
-        lambda.invoke(params, (err, data) => {
-            if (err) {
-                console.error('Error invoking Lambda function:', err);
-            } else {
-                let res: any = JSON.parse(data.Payload);
-                setOutput(JSON.parse(res).result[0].output);
-                setStdOut(JSON.parse(res).result[0].stdout);
-            }
-        });
+            console.log("Hello")
+    
+            await lambda.invoke(params, (err, data) => {
+                if (err) {
+                    console.error('Error invoking Lambda function:', err);
+                } else {
+                    let new_data : any = data.Payload;
+                    let res : any = JSON.parse(new_data);
+                    let old_output = [...output];
+                    old_output.push(JSON.parse(res).result[0].output);
+                    setOutput(old_output);
+                    let old_stdout = [...stdOut];
+                    old_stdout.push(JSON.parse(res).result[0].stdout);
+                    setStdOut(old_stdout);
+                }
+            });
+        }
     }
 
   return (
@@ -145,17 +186,17 @@ export default function Practice() {
         <div style={{ height: "calc(100vh - 40px)", overflow: "hidden" }} onMouseMove={(e) => moveVertically(e)} className=' w-full flex flex-row p-4 '>
             <div style={{minWidth: "30%"}} className='flex w-full h-full flex-col' id='left-container'>
                 <div style={{ minHeight: "200px", height: "calc(100% - 112px)" }}  id='left-top-container'>
-                    <Statement testCases={testCases} />
+                    <Statement preferedTheme={preferedTheme} testCases={testCases} />
                 </div>
                 <div draggable={true} onMouseDown={(e: any) => startHorizontalLeftDrag(e)} onMouseUp={(e : any) => endHorizontalLeftDrag(e)} className=' h-3 w-full text-center justify-center items-center flex cursor-ns-resize dragger'>・・・</div>
                 <div style={{ minHeight: "100px", height: "250px" }} id='left-bottom-container'>
-                    <TestCases testCases={testCases} />
+                    <TestCases preferedTheme={preferedTheme} testCases={testCases} />
                 </div>
             </div>
             <div draggable={true} onMouseDown={(e: any) => startVerticalDrag(e)} onMouseUp={(e : any) => endVerticalDrag(e)} style={{writingMode: "vertical-lr"}} className=' h-full w-3 text-center flex justify-center items-center cursor-ew-resize dragger'>・・・</div>
             <div id='right-container' style={{minWidth: "30%"}} className=' h-full w-full flex flex-col'>
                 <div style={{ minHeight: "200px", height: "calc(100% - 112px)" }} id='right-top-container'>
-                    <Editor testCases={testCases} saveCode={(code : any) => saveCode(code)} />
+                    <Editor preferedTheme={preferedTheme} testCases={testCases} saveCode={(code : any) => saveCode(code)} />
                 </div>
                 <div draggable={true} onMouseDown={(e: any) => startHorizontalRightDrag(e)} onMouseUp={(e : any) => endHorizontalRightDrag(e)} className=' h-3 w-full text-center justify-center items-center flex cursor-ns-resize dragger'>・・・</div>
                 <div style={{ minHeight: "100px", height:"250px", overflow: "hidden" }} id='right-bottom-container'>

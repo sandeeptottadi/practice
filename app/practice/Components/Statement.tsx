@@ -1,13 +1,10 @@
-import React from 'react'
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import React from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 export default function Statement(props : any) {
   let testCase = "";
-
-  const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  const theme = userPrefersDark ? 'material' : 'default';
-
+  
   return (
     <div style={{ backgroundColor: 'var(--background-primary)' }} className='w-full h-full overflow-hidden rounded'>
       <div style={{ backgroundColor: 'var(--background-title)' }} className='flex flex-row shadow-xl'>
@@ -23,7 +20,7 @@ export default function Statement(props : any) {
             whether the second array is a subsequence of the first one.
           </p>
           <p className='mt-4'>
-            A subsequence of an array is a set of numbers that aren't necessarily adjacent
+            A subsequence of an array is a set of numbers that arent necessarily adjacent
             in the array but that are in the same order as they appear in the array. For
             instance, the numbers <span>[1, 3, 4]</span> form a subsequence of the array
             <span>[1, 2, 3, 4]</span>, and so do the numbers <span>[2, 4]</span>. Note
@@ -37,19 +34,11 @@ export default function Statement(props : any) {
           testCase += `${test[0]} : ${JSON.stringify(test[1])} \n`
         })}
           <div style={{backgroundColor: "var(--background-title)", borderRadius: "10px"}} className=' w-full h-fit shadow-sm mt-4 overflow-auto'>
-            <CodeMirror
+          <CodeMirror
+              theme={props.preferedTheme}    
               value={(testCase.substring(0, testCase.length-2))}
-              className=' codemirror-testcases'
-              options={{
-                mode: 'javascript',
-                theme: theme,
-                lineNumbers: true,
-                readOnly: true,
-                extraKeys: {
-                  'Ctrl-Space': 'autocomplete', 
-                },
-              }}
-              autoCursor={false}
+              extensions={[javascript({ jsx: true })]}
+              editable={false}
             />
           </div>
 

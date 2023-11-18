@@ -1,15 +1,8 @@
 import React from 'react'
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/mode/javascript/javascript.js';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 export default function TestCases(props: any) {
-
-  const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  const theme = userPrefersDark ? 'material' : 'default';
-
 
   return (
     <div style={{ backgroundColor: 'var(--background-primary)' }} className='w-full h-full overflow-hidden rounded'>
@@ -28,18 +21,10 @@ export default function TestCases(props: any) {
               })}
               <div key={idx} style={{backgroundColor: "var(--background-title)", borderRadius: "10px"}} className=' w-full h-fit shadow-sm'>
                 <CodeMirror
+                  theme={props.preferedTheme}    
                   value={(testCase.substring(0, testCase.length-2))}
-                  className=' codemirror-testcases'
-                  options={{
-                    mode: 'javascript',
-                    theme: theme,
-                    lineNumbers: true,
-                    readOnly: true,
-                    extraKeys: {
-                      'Ctrl-Space': 'autocomplete', 
-                    },
-                  }}
-                  autoCursor={false}
+                  extensions={[javascript({ jsx: true })]}
+                  editable={false}
                 />
               </div>
             </React.Fragment>

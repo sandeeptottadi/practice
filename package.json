@@ -9,11 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "github:codemirror/lang-javascript",
+    "@uiw/codemirror-theme-basic": "^4.21.20",
+    "@uiw/react-codemirror": "^4.21.20",
     "aws-sdk": "^2.1494.0",
-    "codemirror": "^5.65.15",
     "next": "14.0.1",
     "react": "^18",
-    "react-codemirror2": "^7.3.0",
     "react-dom": "^18"
   },
   "devDependencies": {

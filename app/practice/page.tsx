@@ -16,7 +16,6 @@ export default function Practice() {
         settings: {
           caret: "#000",
           background: "#ecf0f3",
-          fontFamily: 'monospace',
         }
       }))
     
@@ -27,13 +26,11 @@ export default function Practice() {
           settings: {
             caret: "#fff",
             background: "#0f172a",
-            fontFamily: 'monospace',
           }
         }) : basicLightInit({
           settings: {
             caret: "#000",
             background: "#ecf0f3",
-            fontFamily: 'monospace',
           }
         });
         setPreferedTheme(preferedTheme);
@@ -154,10 +151,31 @@ export default function Practice() {
         setCode(code);
     }
 
+    function getOutput(output: string) {
+        let lastArrayLines = [];
+        let openBracketsCount = 0;
+
+        for (let i = output.length - 1; i >= 0; i--) {
+            const line = output[i].trim();
+            if (line === "]") {
+                openBracketsCount++;
+            } else if (line === "[") {
+                openBracketsCount--;
+                if (openBracketsCount <= 0) {
+                    lastArrayLines.unshift(line);
+                    break;
+                }
+            }
+
+            lastArrayLines.unshift(line);
+        }
+        return lastArrayLines.join("");
+    }
+
     async function run() {
+        setError("");
         let outputArray: any = [];
-    
-        // Define a function to invoke Lambda with Promises
+
         function invokeLambda(params: any, index: number) {
             return new Promise((resolve, reject) => {
                 const lambda = new AWS.Lambda();
@@ -174,17 +192,22 @@ export default function Practice() {
                             setError(res.stderr);
                             reject(res.stderr);
                         }
-    
                         res = JSON.stringify(res);
                         const cleanedResult = res.trim();
-    
+
                         try {
                             const parsedOutput = JSON.parse(cleanedResult);
                             let output = parsedOutput.split("\n");
                             if (output[output.length - 1] === "undefined") {
                                 outputArray[index] = ["undefined", parsedOutput.replace("undefined", "")];
                             } else {
-                                outputArray[index] = [parsedOutput];
+                                let out;
+                                if(output[output.length-1] === "]" || output[output.length-1] === "}") {
+                                    out = getOutput(output);
+                                } else {
+                                    out = output[output.length-1]
+                                }
+                                outputArray[index] = [out, parsedOutput];
                             }
                             resolve(parsedOutput);
                         } catch (jsonError) {
@@ -195,23 +218,20 @@ export default function Practice() {
                 });
             });
         }
-    
-        // Create an array of Promises for Lambda invocations
+
         const lambdaPromises = testCases.map((testCase, index) => {
             const params = {
                 FunctionName: 'Test',
-                Payload: JSON.stringify({ code: code, funcName: 'isValidSubSequence', testCases: testCase }),
+                Payload: JSON.stringify({ code: code.replaceAll("'", '"'), funcName: 'isValidSubSequence', testCases: testCase }),
             };
             return invokeLambda(params, index);
         });
     
         try {
-            // Wait for all Lambda invocations to complete
             await Promise.all(lambdaPromises);
             setOutput(outputArray);
         } catch (error) {
             console.error('Error during Lambda invocations:', error);
-            // Handle errors here if needed
         }
     }
     

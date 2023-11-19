@@ -39,6 +39,8 @@ export default function Output(props: {
                               value={out[0]}
                               extensions={[javascript({ jsx: true })]}
                               editable={false}
+                              contentEditable={false}
+                              spellCheck={true}
                             />
                           </div>
                           :<></>}

@@ -55,6 +55,7 @@ export default function Editor(props : any) {
                 setCode(value);
                 props.saveCode(value);
               }}
+              spellCheck={true}
             />
             <div className='p-5' />
           </div>

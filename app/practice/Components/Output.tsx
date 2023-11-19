@@ -1,4 +1,6 @@
 import React from 'react'
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 export default function Output(props: any) {
   return (
@@ -13,22 +15,38 @@ export default function Output(props: any) {
         <div style={{color: "var(--description-color)", fontFamily: "Open Sans,Helvetica,Arial,sans-serif"}} className='p-3 leading-9 w-full h-full overflow-auto max-h-max flex flex-col gap-4'>
         <div style={{backgroundColor: "var(--background-title)"}} className=' w-full p-2 pl-4 rounded shadow-sm'>
           <div>
-            <strong>Output : </strong>
-            {props.output}
-            <div>
-              <strong>Stdout : </strong>
-            {props.stdOut.map((std: any, idx: number) => {
-              return (
-                <div key={idx}>{std}</div>
-              )
-            })}
+            {props.error ? 
+            <div className=' p-3 text-red-400'>
+            {props.error}  
             </div>
-          </div>
-        </div>
-
-        <div style={{backgroundColor: "var(--background-title)"}} className=' w-full p-2 pl-4 rounded shadow-sm'>
-          <div>
-            Test Case <strong>2</strong> passed!
+          :
+              <>
+              <div><strong>Test Case #1</strong></div>
+              {props.output ?
+              <>
+              <strong>Output : </strong>
+              <CodeMirror
+                theme={props.preferedTheme}    
+                value={props.output}
+                extensions={[javascript({ jsx: true })]}
+                editable={false}
+              />
+              </>
+              :<></>
+            }
+            {props.stdOut ?
+              <div>
+                <strong>Stdout : </strong>
+                <CodeMirror
+                theme={props.preferedTheme}    
+                value={props.stdOut}
+                extensions={[javascript({ jsx: true })]}
+                editable={false}
+              />
+              </div>
+            : <></>} 
+              </>
+          }
           </div>
         </div>
         <div className='p-5'></div>

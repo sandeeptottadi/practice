@@ -13,7 +13,7 @@
     "@uiw/codemirror-theme-basic": "^4.21.20",
     "@uiw/react-codemirror": "^4.21.20",
     "aws-sdk": "^2.1494.0",
-    "next": "14.0.1",
+    "next": "^14.0.3",
     "react": "^18",
     "react-dom": "^18"
   },

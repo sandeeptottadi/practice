@@ -8,6 +8,7 @@ import TestCases from './Components/TestCases'
 import Output from './Components/Output'
 import AWS from '../aws'
 import { basicLight, basicLightInit, basicDark, basicDarkInit } from '@uiw/codemirror-theme-basic';
+import { json } from 'stream/consumers'
 
 export default function Practice() {
 
@@ -44,15 +45,16 @@ export default function Practice() {
     const [isMouse3Down, setIsMouse3Down] = useState(false);
     const [code, setCode] = useState("");
     const [testCases, setTestCases] = useState([
-        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [1, 6, -1, 10]]],
-        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]]
+        [["array", [5, 1, 22, 25, 6, -1, 9]], ["sequence", [1, 6, -1, 10]]],
+        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
+        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
+        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
+        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]]
     ])
 
-    const [output, setOutput] = useState<any>([]);
-    const [stdOut, setStdOut] = useState<any>([]);
+    const [output, setOutput] = useState<string>("");
+    const [error, setError] = useState<string>("");
+    const [stdOut, setStdOut] = useState<string>("");
 
     useEffect(() => {
         const handleMouseMove = (e : any) => moveVertically(e);
@@ -160,21 +162,33 @@ export default function Practice() {
                 FunctionName: 'Test',
                 Payload: JSON.stringify({ code: code, funcName : 'isValidSubSequence', testCases: testCases[i] }),
             };
-
-            console.log("Hello")
     
             await lambda.invoke(params, (err, data) => {
                 if (err) {
                     console.error('Error invoking Lambda function:', err);
                 } else {
-                    let new_data : any = data.Payload;
-                    let res : any = JSON.parse(new_data);
-                    let old_output = [...output];
-                    old_output.push(JSON.parse(res).result[0].output);
-                    setOutput(old_output);
-                    let old_stdout = [...stdOut];
-                    old_stdout.push(JSON.parse(res).result[0].stdout);
-                    setStdOut(old_stdout);
+                    let res: any = data.Payload;
+                    res = JSON.parse(res);
+                    if(res.stderr) {
+                        setError(res.stderr)
+                        return;
+                    }
+                    res = JSON.stringify(res);
+                    const cleanedResult = res.trim();
+
+                    try {
+                       const parsedOutput = JSON.parse(cleanedResult);
+                       let output = parsedOutput.split("\n");
+                       if(output[output.length-1] === "undefined") {
+                           setOutput("undefined");
+                           setStdOut(parsedOutput.replace("undefined", ''));
+                        } else {
+                            setOutput(parsedOutput);
+                        }
+                    } catch (jsonError) {
+                        setOutput(cleanedResult)
+                        // setStdOut(cleanedResult);
+                    }
                 }
             });
         }
@@ -200,7 +214,7 @@ export default function Practice() {
                 </div>
                 <div draggable={true} onMouseDown={(e: any) => startHorizontalRightDrag(e)} onMouseUp={(e : any) => endHorizontalRightDrag(e)} className=' h-3 w-full text-center justify-center items-center flex cursor-ns-resize dragger'>・・・</div>
                 <div style={{ minHeight: "100px", height:"250px", overflow: "hidden" }} id='right-bottom-container'>
-                    <Output stdOut={stdOut} output={output} runCode={() => run()} />
+                    <Output error={error} preferedTheme={preferedTheme} stdOut={stdOut} output={output} runCode={() => run()} />
                 </div>
             </div>
         </div>

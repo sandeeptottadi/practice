@@ -8,9 +8,9 @@ import TestCases from './Components/TestCases'
 import Output from './Components/Output'
 import AWS from '../aws'
 import { basicLight, basicLightInit, basicDark, basicDarkInit } from '@uiw/codemirror-theme-basic';
-import { json } from 'stream/consumers'
 
 export default function Practice() {
+
 
     const [preferedTheme, setPreferedTheme] = useState(basicLightInit({
         settings: {
@@ -45,16 +45,17 @@ export default function Practice() {
     const [isMouse3Down, setIsMouse3Down] = useState(false);
     const [code, setCode] = useState("");
     const [testCases, setTestCases] = useState([
-        [["array", [5, 1, 22, 25, 6, -1, 9]], ["sequence", [1, 6, -1, 10]]],
-        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
-        // [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]]
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [1, 6, -1, 10]]],
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10]]],
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [1, 6, 10]]],
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]],
+        [["array", [5, 1, 22, 25, 6, -1, 8, 10]], ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]]]
     ])
 
-    const [output, setOutput] = useState<string>("");
+    const [output, setOutput] = useState<any>([]);
+    const [expectedOutput, setExpectedOutput] = useState<any>([true, true, true, false, false, false]);
     const [error, setError] = useState<string>("");
-    const [stdOut, setStdOut] = useState<string>("");
 
     useEffect(() => {
         const handleMouseMove = (e : any) => moveVertically(e);
@@ -154,45 +155,67 @@ export default function Practice() {
     }
 
     async function run() {
-        
-        for(let i=0;i<testCases.length;i++) {
-            const lambda = new AWS.Lambda();
-
-            const params = {
-                FunctionName: 'Test',
-                Payload: JSON.stringify({ code: code, funcName : 'isValidSubSequence', testCases: testCases[i] }),
-            };
+        let outputArray: any = [];
     
-            await lambda.invoke(params, (err, data) => {
-                if (err) {
-                    console.error('Error invoking Lambda function:', err);
-                } else {
-                    let res: any = data.Payload;
-                    res = JSON.parse(res);
-                    if(res.stderr) {
-                        setError(res.stderr)
-                        return;
-                    }
-                    res = JSON.stringify(res);
-                    const cleanedResult = res.trim();
-
-                    try {
-                       const parsedOutput = JSON.parse(cleanedResult);
-                       let output = parsedOutput.split("\n");
-                       if(output[output.length-1] === "undefined") {
-                           setOutput("undefined");
-                           setStdOut(parsedOutput.replace("undefined", ''));
-                        } else {
-                            setOutput(parsedOutput);
+        // Define a function to invoke Lambda with Promises
+        function invokeLambda(params: any, index: number) {
+            return new Promise((resolve, reject) => {
+                const lambda = new AWS.Lambda();
+    
+                lambda.invoke(params, (err, data) => {
+                    if (err) {
+                        console.error('Error invoking Lambda function:', err);
+                        reject(err);
+                    } else {
+                        let res: any = data.Payload;
+                        res = JSON.parse(res);
+    
+                        if (res.stderr) {
+                            setError(res.stderr);
+                            reject(res.stderr);
                         }
-                    } catch (jsonError) {
-                        setOutput(cleanedResult)
-                        // setStdOut(cleanedResult);
+    
+                        res = JSON.stringify(res);
+                        const cleanedResult = res.trim();
+    
+                        try {
+                            const parsedOutput = JSON.parse(cleanedResult);
+                            let output = parsedOutput.split("\n");
+                            if (output[output.length - 1] === "undefined") {
+                                outputArray[index] = ["undefined", parsedOutput.replace("undefined", "")];
+                            } else {
+                                outputArray[index] = [parsedOutput];
+                            }
+                            resolve(parsedOutput);
+                        } catch (jsonError) {
+                            outputArray[index] = [cleanedResult];
+                            resolve(cleanedResult);
+                        }
                     }
-                }
+                });
             });
         }
+    
+        // Create an array of Promises for Lambda invocations
+        const lambdaPromises = testCases.map((testCase, index) => {
+            const params = {
+                FunctionName: 'Test',
+                Payload: JSON.stringify({ code: code, funcName: 'isValidSubSequence', testCases: testCase }),
+            };
+            return invokeLambda(params, index);
+        });
+    
+        try {
+            // Wait for all Lambda invocations to complete
+            await Promise.all(lambdaPromises);
+            setOutput(outputArray);
+        } catch (error) {
+            console.error('Error during Lambda invocations:', error);
+            // Handle errors here if needed
+        }
     }
+    
+    
 
   return (
     <div style={{ backgroundColor: 'var(--background-secondary)' }}  className=' w-full h-screen overflow-hidden text-sm sm:text-md'>
@@ -214,7 +237,7 @@ export default function Practice() {
                 </div>
                 <div draggable={true} onMouseDown={(e: any) => startHorizontalRightDrag(e)} onMouseUp={(e : any) => endHorizontalRightDrag(e)} className=' h-3 w-full text-center justify-center items-center flex cursor-ns-resize dragger'>・・・</div>
                 <div style={{ minHeight: "100px", height:"250px", overflow: "hidden" }} id='right-bottom-container'>
-                    <Output error={error} preferedTheme={preferedTheme} stdOut={stdOut} output={output} runCode={() => run()} />
+                    <Output expectedOutput={expectedOutput} error={error} preferedTheme={preferedTheme} output={output} runCode={() => run()} />
                 </div>
             </div>
         </div>

@@ -38,11 +38,15 @@ body {
 }
 
 .cm-gutter {
-  background-color: var(--background-secondary) !important;
+  background-color: var(--background-primary) !important;
 }
 
 
 .tab:hover {
   background-color: var(--background-primary) !important;
   cursor: pointer;
+}
+
+.cm-editor {
+  height: 100%;
 }

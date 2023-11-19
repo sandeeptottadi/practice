@@ -47,6 +47,7 @@ export default function Editor(props : any) {
         <div className=' overflow-auto w-full h-full'>
           <div style={{color: "var(--description-color)", fontFamily: "Open Sans,Helvetica,Arial,sans-serif"}} className='leading-9 text-xs h-full'>
             <CodeMirror
+              className=' h-full'
               theme={props.preferedTheme}    
               value={code}
               extensions={[javascript({ jsx: true })]}

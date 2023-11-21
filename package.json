@@ -11,6 +11,7 @@
   "dependencies": {
     "@codemirror/lang-javascript": "github:codemirror/lang-javascript",
     "@uiw/codemirror-theme-basic": "^4.21.20",
+    "@uiw/codemirror-themes-all": "^4.21.20",
     "@uiw/react-codemirror": "^4.21.20",
     "aws-sdk": "^2.1494.0",
     "next": "^14.0.3",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-codemirror": "^1.0.11",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",

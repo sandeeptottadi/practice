@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -20,17 +21,15 @@ html, body {
     --background-primary: #0f172a;
     --background-secondary: #1e293b;
     /* --background-title: #334155; */
-    --background-title : #15314b;;
-    --description-color: hsla(0,0%,100%,.769);
+    --background-title: #15314b;
+    --description-color: hsla(0, 0%, 100%, 0.769);
   }
 }
 
-
 body {
   color: rgb(var(--foreground-rgb));
-    background-color: var(--background-primary);
+  background-color: var(--background-primary);
 }
-
 
 .dragger:hover {
   background-color: rgb(130, 149, 255) !important;
@@ -41,7 +40,6 @@ body {
   background-color: var(--background-primary) !important;
 }
 
-
 .tab:hover {
   background-color: var(--background-primary) !important;
   cursor: pointer;
@@ -49,4 +47,24 @@ body {
 
 .cm-editor {
   height: 100%;
+  border-radius: 10px;
+  background-color: var(--background-primary);
+}
+
+.testcase-container .cm-gutter {
+  background-color: var(--background-title) !important;
+}
+
+.testcase-container .cm-editor {
+  background-color: var(--background-title);
+  padding: 10px;
+}
+
+.output-editor-container .cm-gutter {
+  background-color: var(--background-primary) !important;
+}
+
+.output-editor-container .cm-editor {
+  background-color: var(--background-primary) !important;
+  padding: 10px;
 }

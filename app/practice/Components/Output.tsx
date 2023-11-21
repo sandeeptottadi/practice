@@ -43,6 +43,13 @@ export default function Output(props: {
         }}
         className="p-3 leading-9 w-full h-full overflow-auto max-h-max flex flex-col gap-4"
       >
+        <div className=" w-full h-full flex justify-center items-center text-slate-500 text-lg">
+          {!props.output.length && !props.error ? (
+            <h1>Run or Submit the code when you are ready.</h1>
+          ) : (
+            <></>
+          )}
+        </div>
         {props.error ? (
           <div className=" p-3 text-red-400">{props.error}</div>
         ) : (

@@ -1,6 +1,7 @@
 import React from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
+import { Audio, Oval } from "react-loader-spinner";
 
 export default function Output(props: {
   preferedTheme: any;
@@ -8,6 +9,7 @@ export default function Output(props: {
   error: string;
   runCode: () => {};
   expectedOutput: any;
+  codeRunning: boolean;
 }) {
   return (
     <div
@@ -44,7 +46,24 @@ export default function Output(props: {
         className="p-3 leading-9 w-full h-full overflow-auto max-h-max flex flex-col gap-4"
       >
         <div className=" w-full h-full flex justify-center items-center text-slate-500 text-lg">
-          {!props.output.length && !props.error ? (
+          {props.codeRunning ? (
+            <Oval
+              height={100}
+              width={100}
+              color="#3b82f6"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+              ariaLabel="oval-loading"
+              secondaryColor="#60a5fa"
+              strokeWidth={2}
+              strokeWidthSecondary={2}
+            />
+          ) : (
+            <></>
+          )}
+
+          {!props.output.length && !props.error && !props.codeRunning ? (
             <h1>Run or Submit the code when you are ready.</h1>
           ) : (
             <></>

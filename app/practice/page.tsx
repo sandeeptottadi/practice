@@ -7,16 +7,20 @@ import Statement from "./Components/Statement";
 import TestCases from "./Components/TestCases";
 import Output from "./Components/Output";
 import AWS from "../aws";
-import {
-  basicLight,
-  basicLightInit,
-  basicDark,
-  basicDarkInit,
-} from "@uiw/codemirror-theme-basic";
 import { githubLight, githubDark } from "@uiw/codemirror-themes-all";
+import { set } from "mongoose";
 
 export default function Practice() {
   const [preferedTheme, setPreferedTheme] = useState(githubDark);
+  const [codeRunning, setCodeRunning] = useState(false);
+
+  function changeTheme(theme: "dark" | "light") {
+    if (theme === "dark") {
+      setPreferedTheme(githubDark);
+    } else {
+      setPreferedTheme(githubLight);
+    }
+  }
 
   useEffect(() => {
     const userPrefersDark =
@@ -43,18 +47,6 @@ export default function Practice() {
     [
       ["array", [5, 1, 22, 25, 6, -1, 8, 10]],
       ["sequence", [1, 6, 10]],
-    ],
-    [
-      ["array", [5, 1, 22, 25, 6, -1, 8, 10]],
-      ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]],
-    ],
-    [
-      ["array", [5, 1, 22, 25, 6, -1, 8, 10]],
-      ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]],
-    ],
-    [
-      ["array", [5, 1, 22, 25, 6, -1, 8, 10]],
-      ["sequence", [5, 1, 22, 25, 6, -1, 8, 10, 12]],
     ],
   ]);
 
@@ -196,6 +188,8 @@ export default function Practice() {
 
   async function run() {
     setError("");
+    setCodeRunning(true);
+    setOutput([]);
     let outputArray: any = [];
 
     function invokeLambda(params: any, index: number) {
@@ -262,7 +256,9 @@ export default function Practice() {
     try {
       await Promise.all(lambdaPromises);
       setOutput(outputArray);
+      setCodeRunning(false);
     } catch (error) {
+      setCodeRunning(false);
       console.error("Error during Lambda invocations:", error);
     }
   }
@@ -272,7 +268,7 @@ export default function Practice() {
       style={{ backgroundColor: "var(--background-secondary)" }}
       className=" w-full h-screen overflow-hidden text-sm sm:text-md"
     >
-      <Navbar />
+      <Navbar changeTheme={(theme) => changeTheme(theme)} />
       <div
         style={{ height: "calc(100vh - 40px)", overflow: "hidden" }}
         onMouseMove={(e) => moveVertically(e)}
@@ -341,6 +337,7 @@ export default function Practice() {
             id="right-bottom-container"
           >
             <Output
+              codeRunning={codeRunning}
               expectedOutput={expectedOutput}
               error={error}
               preferedTheme={preferedTheme}

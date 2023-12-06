@@ -14,6 +14,17 @@ export default function Practice() {
   const [preferedTheme, setPreferedTheme] = useState(githubDark);
   const [codeRunning, setCodeRunning] = useState(false);
 
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+      setPreferedTheme(githubDark);
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      setPreferedTheme(githubLight);
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }, []);
+
   function changeTheme(theme: "dark" | "light") {
     if (theme === "dark") {
       setPreferedTheme(githubDark);
@@ -21,15 +32,6 @@ export default function Practice() {
       setPreferedTheme(githubLight);
     }
   }
-
-  useEffect(() => {
-    const userPrefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    let preferedTheme = userPrefersDark ? githubDark : githubLight;
-    setPreferedTheme(preferedTheme);
-  }, []);
 
   const [isMouse1Down, setIsMouse1Down] = useState(false);
   const [isMouse2Down, setIsMouse2Down] = useState(false);
